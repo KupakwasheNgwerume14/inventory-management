@@ -30,6 +30,7 @@ public class ItemService {
     public Optional<Item> getItemById(Long id) {
         return itemRepository.findById(id);
     }
+
     // Update Item
     public Item updateItem(Long id, Item updatedItem) {
 
