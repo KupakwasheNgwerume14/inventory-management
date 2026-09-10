@@ -1,7 +1,9 @@
 package com.petrotrade.inventory.controller;
 
+import com.petrotrade.inventory.dto.ItemRequest;
 import com.petrotrade.inventory.model.Item;
 import com.petrotrade.inventory.service.ItemService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,19 @@ public class ItemsController {
 
     // Create Item
     @PostMapping
-    public ResponseEntity<Item> createItem(@RequestBody Item item) {
+    public ResponseEntity<Item> createItem(@Valid @RequestBody ItemRequest request) {
+
+        Item item = new Item();
+
+        item.setName(request.getName());
+        item.setSku(request.getSku());
+        item.setCategory(request.getCategory());
+        item.setQuantity(request.getQuantity());
+        item.setUnitPrice(request.getUnitPrice());
+        item.setReorderLevel(request.getReorderLevel());
+
         Item savedItem = itemService.saveItem(item);
+
         return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
     }
 
@@ -42,11 +55,15 @@ public class ItemsController {
         return item.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
     // Update Item
     @PutMapping("/{id}")
-    public ResponseEntity<Item> updateItem(@PathVariable Long id,
-                                           @RequestBody Item item) {
-        log.info("in update------------------>{}",item);
+    public ResponseEntity<Item> updateItem(
+            @PathVariable Long id,
+            @RequestBody Item item) {
+
+        log.info("Updating item: {}", item);
+
         return ResponseEntity.ok(itemService.updateItem(id, item));
     }
 
@@ -57,7 +74,7 @@ public class ItemsController {
         return ResponseEntity.noContent().build();
     }
 
-    // Low Stock
+    // Low Stock Items
     @GetMapping("/low-stock")
     public ResponseEntity<List<Item>> getLowStockItems() {
         return ResponseEntity.ok(itemService.getLowStockItems());
