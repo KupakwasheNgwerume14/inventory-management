@@ -1,4 +1,41 @@
-name: Build Inventory App
+
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Make Maven Wrapper Executable
+        run: chmod +x mvnw
+
+      - name: Build Application
+        run: ./mvnw clean package -DskipTests
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image
+        run: docker build -t kupakwashe14/inventory-app:latest .
+
+      - name: Push Docker Image
+        run: docker push kupakwashe14/inventory-app:latestname: Build Inventory App
 
 on:
   push:
